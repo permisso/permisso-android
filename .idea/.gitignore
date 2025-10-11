@@ -1,0 +1,40 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+
+
+# IntelliJ IDEA files that should not be committed
+tasks.xml
+gradle.xml
+assetWizardSettings.xml
+dictionaries/
+libraries/
+caches/
+.kotlin/
+modules.xml
+.name
+compiler.xml
+copyright/
+encodings.xml
+scopes/scope_settings.xml
+datasources.xml
+datasources.local.xml
+sqlDataSources.xml
+dynamic.xml
+uiDesigner.xml
+dbnavigator.xml
+sonarlint/
+deploymentTargetDropDown.xml
+deploymentTargetSelector.xml
+deviceManager.xml
+migrations.xml
+
+
+# Copilot files (user-specific)
+copilot.data.migration.agent.xml
+copilotDiffState.xml
+
+
+# Android Studio user preferences (should not be committed)
+androidTestResultsUserPreferences.xml
+AndroidProjectSystem.xml
