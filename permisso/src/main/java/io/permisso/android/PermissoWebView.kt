@@ -100,7 +100,7 @@ class PermissoWebView @JvmOverloads constructor(
                                 try { data = JSON.parse(data); } catch(_) {}
                             }
                             if (data && data.name && window.PermissoAndroid) {
-                                window.PermissoAndroid.onEvent(data.name, JSON.stringify(data));
+                                window.PermissoAndroid.onEvent(JSON.stringify(data));
                             }
                         } catch (err) {
                             console.log("PermissoAndroid error:", err);
