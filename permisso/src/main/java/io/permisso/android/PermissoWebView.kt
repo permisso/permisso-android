@@ -30,6 +30,10 @@ class PermissoWebView @JvmOverloads constructor(
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
+        // Configure WebView for proper input and focus handling
+        isFocusable = true
+        isFocusableInTouchMode = true
+        
         settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
@@ -74,16 +78,6 @@ class PermissoWebView @JvmOverloads constructor(
     }
 
     private inner class PermissoWebViewClient : WebViewClient() {
-        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            val url = request.url.toString()
-
-            if (isPermissoDomain(url)) return false
-
-            // Handle the URL using our link navigation handler
-            linkNavigationHandler?.handleExternalLink(url) {}
-
-            return true
-        }
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
