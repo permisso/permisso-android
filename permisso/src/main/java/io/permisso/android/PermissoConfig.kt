@@ -8,6 +8,11 @@ data class PermissoConfig(
      * How external links should be handled
      */
     val linkHandlingMode: LinkHandlingMode = LinkHandlingMode.CUSTOM_TAB,
+    
+    /**
+     * Callback for handling runtime permission requests from WebView
+     */
+    val permissionCallback: PermissionCallback? = null,
 ) {
     companion object {
         /**

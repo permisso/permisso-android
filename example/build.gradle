@@ -36,6 +36,7 @@ android {
 
 dependencies {
     implementation project(':permisso')
+//    implementation 'io.permisso:permisso-android:1.0.0'
 
     implementation 'androidx.core:core-ktx:1.17.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.9.4'

@@ -2,13 +2,16 @@ package io.permisso.android
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.util.AttributeSet
 import android.util.Log
+import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebResourceRequest
+import androidx.core.content.ContextCompat
 
 /**
  * PermissoWebView is a specialized WebView that handles Permisso widget integration
@@ -107,15 +110,22 @@ class PermissoWebView @JvmOverloads constructor(
 
             evaluateJavascript(jsCode, null)
         }
-
-        fun isPermissoDomain(url: String): Boolean {
-            val permissoDomains = listOf("permisso.io", "prms.io", "bankflip.io", "bkfp.io")
-            val uri = android.net.Uri.parse(url.lowercase())
-            return permissoDomains.any { domain -> uri.host?.endsWith(domain) == true }
-        }
     }
 
     private inner class PermissoWebChromeClient : WebChromeClient() {
+        
+        // Handle WebView permission requests for camera/microphone
+        override fun onPermissionRequest(request: PermissionRequest?) {
+            val permissionCallback = permissoConfig?.permissionCallback
+            if (request != null && permissionCallback != null) {
+                Log.d("PermissoWebView", "Permission request received: ${request.resources.joinToString()}")
+                permissionCallback.onPermissionRequired(request)
+            } else {
+                Log.d("PermissoWebView", "No permission callback set, denying request")
+                request?.deny()
+            }
+        }
+
         // Handle new window creation for multiple windows support
         override fun onCreateWindow(
             view: WebView?,
