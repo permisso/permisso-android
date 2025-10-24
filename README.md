@@ -6,6 +6,8 @@ The Permisso Android SDK provides a simple way to integrate the Permisso widget 
 
 - **Android API level 24+ (Android 7.0)**
 - Internet permission
+- Camera permission
+- Record Audio permission
 - Chrome browser for Custom Tabs (optional but recommended)
 
 ## Features
@@ -39,6 +41,7 @@ dependencies {
 ### Link Handling Modes
 
 #### Custom Tabs (Recommended)
+
 ```kotlin
 val config = PermissoConfig(
     linkHandlingMode = LinkHandlingMode.CUSTOM_TAB
@@ -46,6 +49,7 @@ val config = PermissoConfig(
 ```
 
 #### External Browser
+
 ```kotlin
 val config = PermissoConfig(
     linkHandlingMode = LinkHandlingMode.EXTERNAL_BROWSER
@@ -53,6 +57,7 @@ val config = PermissoConfig(
 ```
 
 #### Custom Handling
+
 ```kotlin
 val config = PermissoConfig(
     linkHandlingMode = LinkHandlingMode.CUSTOM
@@ -100,7 +105,7 @@ To handle permission requests, implement the `PermissionCallback` interface in y
 ### Custom Message Handling
 
 To listen messages raised by the Permisso widget, you should pass an instance
-of `PermissoMessageListener` to the `PermissoWebView` on the initialize method. 
+of `PermissoMessageListener` to the `PermissoWebView` on the initialize method.
 
 ```kotlin
 permissoWebView.initialize(permissoConfig, this)
