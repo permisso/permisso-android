@@ -7,15 +7,37 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.activity.result.contract.ActivityResultContracts
+import android.webkit.PermissionRequest
 import io.permisso.android.LinkHandlingMode
+import io.permisso.android.PermissionCallback
 import io.permisso.android.PermissoConfig
 import io.permisso.android.PermissoMessageListener
 import io.permisso.android.PermissoWebView
 
-class MainActivity : AppCompatActivity(), PermissoMessageListener {
+class MainActivity : AppCompatActivity(), PermissoMessageListener, PermissionCallback {
     private lateinit var permissoWebView: PermissoWebView
+    
+    // Store current permission request for callback
+    private var currentPermissionRequest: PermissionRequest? = null
+    private var currentPermissionCallback: ((Boolean) -> Unit)? = null
+    
+    // Permission launcher for runtime permissions
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.values.all { it }
+        Log.d("PermissoExample", "Permissions result: $permissions, all granted: $allGranted")
+        
+        // Notify the WebView about the permission result
+        currentPermissionCallback?.invoke(allGranted)
+        currentPermissionRequest = null
+        currentPermissionCallback = null
+    }
+    
     private val permissoConfig = PermissoConfig(
         linkHandlingMode = LinkHandlingMode.CUSTOM_TAB,
+        permissionCallback = this // Set this activity as the permission callback
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,5 +86,21 @@ class MainActivity : AppCompatActivity(), PermissoMessageListener {
 
     override fun onMessageReceived(event: String) {
         Log.d("PermissoExample", "Received message: $event")
+    }
+    
+    // Implementation of PermissionCallback interface
+    override fun onPermissionRequired(
+        permissions: Array<String>,
+        webViewRequest: PermissionRequest,
+        onResult: (Boolean) -> Unit
+    ) {
+        Log.d("PermissoExample", "WebView requesting permissions: ${permissions.contentToString()}")
+        
+        // Store the current request for the callback
+        currentPermissionRequest = webViewRequest
+        currentPermissionCallback = onResult
+        
+        // Request permissions from the user
+        permissionLauncher.launch(permissions)
     }
 }
