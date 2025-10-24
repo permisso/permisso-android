@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity(), PermissoMessageListener, PermissionCal
         permissoWebView.initialize(permissoConfig, this)
 
         // Load a sample Permisso widget (replace with actual short link)
-        val shortLink = "https://core-1.staging.permisso.io/demo?flow=isa"
+        val shortLink = "https://s.prms.io/m/5dapwREh"
         permissoWebView.loadWidget(shortLink)
     }
 
