@@ -5,6 +5,12 @@ All notable changes to the Permisso Android SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2025-10-24
+
+### Fixes
+
+- Create release.sh
+
 ## [1.0.3] - 2025-10-24
 
 ### Fixes
@@ -39,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 
-- Easy integration with Permisso widget via short links (https://prms.io/XXXX)
+- Easy integration with Permisso widget via short links (<https://prms.io/XXXX>)
 - Automatic redirection handling to widget.permisso.io
 - Intercepts external links to prevent navigation away from widget
 - Opens external links in in-app browser (Custom Tabs) or external browser

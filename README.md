@@ -24,7 +24,7 @@ Add the following dependency to your app's `build.gradle` file:
 
 ```gradle
 dependencies {
-    implementation 'io.permisso:permisso-android:1.0.0'
+    implementation 'io.permisso:permisso-android:1.0.4'
 }
 ```
 
