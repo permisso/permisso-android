@@ -1,5 +1,7 @@
 package io.permisso.android.example
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.LinearLayout
@@ -9,6 +11,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.activity.result.contract.ActivityResultContracts
 import android.webkit.PermissionRequest
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import io.permisso.android.LinkHandlingMode
 import io.permisso.android.PermissionCallback
 import io.permisso.android.PermissoConfig
@@ -80,7 +84,7 @@ class MainActivity : AppCompatActivity(), PermissoMessageListener, PermissionCal
         permissoWebView.initialize(permissoConfig, this)
 
         // Load a sample Permisso widget (replace with actual short link)
-        val shortLink = "https://s.prms.io/m/5dapwREh"
+        val shortLink = "https://core-1.staging.permisso.io/demo?flow=isa"
         permissoWebView.loadWidget(shortLink)
     }
 
@@ -90,17 +94,69 @@ class MainActivity : AppCompatActivity(), PermissoMessageListener, PermissionCal
     
     // Implementation of PermissionCallback interface
     override fun onPermissionRequired(
-        permissions: Array<String>,
-        webViewRequest: PermissionRequest,
-        onResult: (Boolean) -> Unit
+        request: PermissionRequest,
     ) {
-        Log.d("PermissoExample", "WebView requesting permissions: ${permissions.contentToString()}")
-        
-        // Store the current request for the callback
-        currentPermissionRequest = webViewRequest
-        currentPermissionCallback = onResult
-        
-        // Request permissions from the user
-        permissionLauncher.launch(permissions)
+        Log.d("PermissoExample", "Permission required for resources: ${request.resources.joinToString()}")
+        currentPermissionRequest = request
+
+        // Determine required Android permissions based on WebView request
+        val requiredPermissions = mutableListOf<String>()
+        for (resource in request.resources) {
+            when (resource) {
+                PermissionRequest.RESOURCE_VIDEO_CAPTURE -> {
+                    requiredPermissions.add(Manifest.permission.CAMERA)
+                }
+                PermissionRequest.RESOURCE_AUDIO_CAPTURE -> {
+                    requiredPermissions.add(Manifest.permission.RECORD_AUDIO)
+                }
+            }
+        }
+
+        // Check if permissions are already granted
+        val permissionsToRequest = requiredPermissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (permissionsToRequest.isEmpty()) {
+            // All permissions already granted
+            Log.d("PermissoExample", "All required permissions already granted")
+            request.grant(request.resources)
+        } else {
+            // Show rationale dialog if needed
+            val showRationale = permissionsToRequest.any {
+                shouldShowRequestPermissionRationale(it)
+            }
+
+            if (showRationale) {
+                AlertDialog.Builder(this)
+                    .setTitle("Permissions Required")
+                    .setMessage("This feature requires camera and/or microphone access. Please grant the permissions.")
+                    .setPositiveButton("OK") { _, _ ->
+                        // Launch permission request
+                        currentPermissionCallback = { granted ->
+                            if (granted) {
+                                request.grant(request.resources)
+                            } else {
+                                request.deny()
+                            }
+                        }
+                        permissionLauncher.launch(permissionsToRequest.toTypedArray())
+                    }
+                    .setNegativeButton("Cancel") { _, _ ->
+                        request.deny()
+                    }
+                    .show()
+            } else {
+                // Directly request permissions
+                currentPermissionCallback = { granted ->
+                    if (granted) {
+                        request.grant(request.resources)
+                    } else {
+                        request.deny()
+                    }
+                }
+                permissionLauncher.launch(permissionsToRequest.toTypedArray())
+            }
+        }
     }
 }

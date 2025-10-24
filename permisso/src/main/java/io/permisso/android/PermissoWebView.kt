@@ -110,106 +110,20 @@ class PermissoWebView @JvmOverloads constructor(
 
             evaluateJavascript(jsCode, null)
         }
-
-        fun isPermissoDomain(url: String): Boolean {
-            val permissoDomains = listOf("permisso.io", "prms.io", "bankflip.io", "bkfp.io")
-            val uri = android.net.Uri.parse(url.lowercase())
-            return permissoDomains.any { domain -> uri.host?.endsWith(domain) == true }
-        }
     }
 
     private inner class PermissoWebChromeClient : WebChromeClient() {
         
         // Handle WebView permission requests for camera/microphone
         override fun onPermissionRequest(request: PermissionRequest?) {
-            Log.d("PermissoWebView", "Permission requested: ${request?.resources?.contentToString()}")
-            
-            request?.let { permissionRequest ->
-                val requestedResources = permissionRequest.resources
-                val requiredAndroidPermissions = mutableListOf<String>()
-                
-                // Map WebView permissions to Android permissions
-                for (resource in requestedResources) {
-                    when (resource) {
-                        PermissionRequest.RESOURCE_VIDEO_CAPTURE -> {
-                            requiredAndroidPermissions.add(android.Manifest.permission.CAMERA)
-                        }
-                        PermissionRequest.RESOURCE_AUDIO_CAPTURE -> {
-                            requiredAndroidPermissions.add(android.Manifest.permission.RECORD_AUDIO)
-                        }
-                    }
-                }
-                
-                if (requiredAndroidPermissions.isEmpty()) {
-                    Log.w("PermissoWebView", "No supported permissions requested")
-                    permissionRequest.deny()
-                    return
-                }
-                
-                // Check if we already have all required permissions
-                val missingPermissions = requiredAndroidPermissions.filter { permission ->
-                    !hasPermission(permission)
-                }
-                
-                if (missingPermissions.isEmpty()) {
-                    // We have all permissions, grant immediately
-                    val supportedResources = requestedResources.filter { resource ->
-                        when (resource) {
-                            PermissionRequest.RESOURCE_VIDEO_CAPTURE -> hasPermission(android.Manifest.permission.CAMERA)
-                            PermissionRequest.RESOURCE_AUDIO_CAPTURE -> hasPermission(android.Manifest.permission.RECORD_AUDIO)
-                            else -> false
-                        }
-                    }
-                    
-                    if (supportedResources.isNotEmpty()) {
-                        permissionRequest.grant(supportedResources.toTypedArray())
-                        Log.d("PermissoWebView", "Granted permissions immediately: ${supportedResources.joinToString()}")
-                    } else {
-                        permissionRequest.deny()
-                    }
-                } else {
-                    // We need to request permissions from the user
-                    val permissionCallback = permissoConfig?.permissionCallback
-                    if (permissionCallback != null) {
-                        Log.d("PermissoWebView", "Requesting permissions from user: ${missingPermissions.joinToString()}")
-                        permissionCallback.onPermissionRequired(
-                            missingPermissions.toTypedArray(),
-                            permissionRequest
-                        ) { granted ->
-                            if (granted) {
-                                // Re-check permissions and grant what we can
-                                val supportedResources = requestedResources.filter { resource ->
-                                    when (resource) {
-                                        PermissionRequest.RESOURCE_VIDEO_CAPTURE -> hasPermission(android.Manifest.permission.CAMERA)
-                                        PermissionRequest.RESOURCE_AUDIO_CAPTURE -> hasPermission(android.Manifest.permission.RECORD_AUDIO)
-                                        else -> false
-                                    }
-                                }
-                                
-                                if (supportedResources.isNotEmpty()) {
-                                    permissionRequest.grant(supportedResources.toTypedArray())
-                                    Log.d("PermissoWebView", "Granted permissions after user approval: ${supportedResources.joinToString()}")
-                                } else {
-                                    permissionRequest.deny()
-                                    Log.w("PermissoWebView", "User granted permissions but still not available")
-                                }
-                            } else {
-                                permissionRequest.deny()
-                                Log.w("PermissoWebView", "User denied permissions")
-                            }
-                        }
-                    } else {
-                        // No permission callback provided, deny
-                        Log.w("PermissoWebView", "No permission callback provided, denying request")
-                        permissionRequest.deny()
-                    }
-                }
+            val permissionCallback = permissoConfig?.permissionCallback
+            if (request != null && permissionCallback != null) {
+                Log.d("PermissoWebView", "Permission request received: ${request.resources.joinToString()}")
+                permissionCallback.onPermissionRequired(request)
+            } else {
+                Log.d("PermissoWebView", "No permission callback set, denying request")
+                request?.deny()
             }
-        }
-        
-        // Helper method to check if we have Android permissions
-        private fun hasPermission(permission: String): Boolean {
-            return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
         }
 
         // Handle new window creation for multiple windows support
