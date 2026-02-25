@@ -24,7 +24,7 @@ Add the following dependency to your app's `build.gradle` file:
 
 ```gradle
 dependencies {
-    implementation 'io.permisso:permisso-android:1.0.4'
+    implementation 'io.permisso:permisso-android:1.0.5'
 }
 ```
 
@@ -133,4 +133,4 @@ Check out the `example` module in this repository for a complete integration exa
 
 ## License
 
-Copyright 2025 Permisso. All rights reserved.
+Copyright 2026 Permisso. All rights reserved.
